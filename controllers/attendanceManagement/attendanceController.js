@@ -1,6 +1,7 @@
 const AttendanceModel = require("../../models/attendanceModel");
 const HolidayModel = require("../../models/holidayModel");
 const LeaveModel = require("../../models/leaveModel"); 
+const getUserById = require("../../utils/getUserController");
 
 const punchIn = async (req, res) => {
     const user = req.user;
@@ -92,57 +93,77 @@ const punchOut = async (req, res) => {
 };
 
 const getPunchData = async (req, res) => {
-    const user = req.user;
+
+    const user = await getUserById(req.user._id);
+    const startDate = user.joiningDate
+
+
+    // const { startDate } = req.query;
     const { current_time, current_date } = getCurrentTimeAndDate();
 
-    try {
-        let attendanceRecord = await AttendanceModel.findOne({ user: user._id, date: current_date });
+    if (!startDate) {
+        return res.status(400).json({ message: "startDate query parameter is required" });
+    }
 
-        const holiday = await HolidayModel.findOne({ date: current_date });
-        const isHoliday = !!holiday;
+    const startDateObj = new Date(startDate);
+    const punchDataList = [];
+    let currentDate = startDateObj;
 
-        const dayOfWeek = current_time.getDay();
-        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+    while (currentDate <= new Date(current_date)) {
+        const current_date_str = currentDate.toISOString().split('T')[0];
 
-        const leave = await LeaveModel.findOne({
-            user: user._id,
-            start_date: { $lte: current_time },
-            end_date: { $gte: current_time },
-            leave_status: { $in: ['approved', 'pending'] }
-        });
-        const isOnLeave = !!leave;
+        try {
+            let attendanceRecord = await AttendanceModel.findOne({ user: user._id, date: current_date_str });
 
-        if (!attendanceRecord) {
-            const punchData = {
-                userId: user._id,
-                date: current_date,
-                punchTimes: [],
-                netHourInOffice: "0:00",
-                isHoliday: isHoliday,
-                isWeekend: isWeekend,
-                isOnLeave: isOnLeave
-            };
-            return res.status(200).json(punchData);
+            const holiday = await HolidayModel.findOne({ date: current_date_str });
+            const isHoliday = !!holiday;
+
+            const dayOfWeek = currentDate.getDay();
+            const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+            const leave = await LeaveModel.findOne({
+                user: user._id,
+                start_date: { $lte: currentDate },
+                end_date: { $gte: currentDate },
+                leave_status: { $in: ['approved', 'pending'] }
+            });
+            const isOnLeave = !!leave;
+
+            let punchData;
+            if (!attendanceRecord) {
+                punchData = {
+                    userId: user._id,
+                    date: current_date_str,
+                    punchTimes: [],
+                    netHourInOffice: "0:00",
+                    isHoliday: isHoliday,
+                    isWeekend: isWeekend,
+                    isOnLeave: isOnLeave
+                };
+            } else {
+                punchData = {
+                    userId: user._id,
+                    date: current_date_str,
+                    punchTimes: attendanceRecord.punch_times,
+                    netHourInOffice: formatNetHour(attendanceRecord.total_punch_time),
+                    isHoliday: isHoliday,
+                    isWeekend: isWeekend,
+                    isOnLeave: isOnLeave
+                };
+            }
+
+            punchDataList.push(punchData);
+        } catch (error) {
+            console.error("Error:", error);
+            return res.status(500).json({ message: "Internal Server Error" });
         }
 
-        const punchTimes = attendanceRecord.punch_times;
-        const punchData = {
-            userId: user._id,
-            date: current_date,
-            punchTimes: punchTimes,
-            netHourInOffice: formatNetHour(attendanceRecord.total_punch_time),
-            isHoliday: isHoliday,
-            isWeekend: isWeekend,
-            isOnLeave: isOnLeave
-        };
-
-        return res.status(200).json(punchData);
-    } catch (error) {
-        console.error("Error:", error);
-        return res.status(500).json({ message: "Internal Server Error" });
+        // Move to the next day
+        currentDate.setDate(currentDate.getDate() + 1);
     }
-};
 
+    return res.status(200).json(punchDataList);
+};
 
 const getCurrentTimeAndDate = () => {
     const now = new Date();
@@ -154,6 +175,7 @@ const getCurrentTimeAndDate = () => {
         current_date: ISTTime.toISOString().split('T')[0]
     };
 };
+
 
 const formatTime = (time) => {
     return `${time.toISOString().split('T')[1].slice(0, 8)}`;

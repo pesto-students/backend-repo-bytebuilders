@@ -1,9 +1,13 @@
 const User = require('../../models/userModel');
 const Payslip = require('../../models/paySlipModel');
 
+const userObj = require('../../utils/getUserController');
+const getUserById = require('../../utils/getUserController');
+
 const getpayslipUrl = async (req, res) => {
     try {
-        const userId = req.body.userId;
+        const use =  await(getUserById(req.user._id));
+        const userId = use.id
         const month = req.body.month;
         const year = req.body.year;
 
