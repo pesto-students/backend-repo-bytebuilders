@@ -5,9 +5,13 @@ const userRegisterValidate = (req, res, next) => {
     fullName: Joi.string().min(3).max(100).required(),
     email: Joi.string().email().required(),
     password: Joi.string().min(8).alphanum().required(),
-    dateOfBirth: Joi.date().iso().default(() => new Date().toISOString()),
+    dateOfBirth: Joi.date()
+      .iso()
+      .default(() => new Date().toISOString()),
     employeeIdentificationCode: Joi.string().required(),
-    joiningDate: Joi.date().iso().default(() => new Date().toISOString()),
+    joiningDate: Joi.date()
+      .iso()
+      .default(() => new Date().toISOString()),
     phone: Joi.string().required(),
     isAdmin: Joi.boolean().required(),
     isOwner: Joi.boolean().required(),
@@ -16,7 +20,7 @@ const userRegisterValidate = (req, res, next) => {
     currency: Joi.string().required(),
     medicalLeaveDays: Joi.number().integer().min(0).required(),
     lopLeaveDays: Joi.number().allow(null),
-    isEmployeeActive : Joi.boolean().required(),
+    isEmployeeActive: Joi.boolean().required(),
     isReportingManager: Joi.boolean().required(),
     basicSalary: Joi.number().required(),
     hra: Joi.number().required(),
@@ -31,30 +35,30 @@ const userRegisterValidate = (req, res, next) => {
     canAcceptOrRejectLeaves: Joi.boolean().required(),
     canReadLeaves: Joi.boolean().required(),
     canCreateLeaves: Joi.boolean().required(),
-    organisationName:Joi.string().required(),
+    organisationName: Joi.string().required(),
     department: "",
-    designation: ""
+    designation: "",
   });
   const { error, value } = schema.validate(req.body);
   if (error) {
-    console.error(error); // Log the error to see what's happening
+    console.error(error); 
     return res.status(400).json({ message: "Bad request", error });
   }
   next();
 };
 
-
 const employeeRegisterValidate = (req, res, next) => {
-
-  
-
   const schema = Joi.object({
     fullName: Joi.string().min(3).max(100).required(),
     email: Joi.string().email().required(),
     password: Joi.string().min(0).alphanum().required(),
-    dateOfBirth: Joi.date().iso().default(() => new Date().toISOString()),
+    dateOfBirth: Joi.date()
+      .iso()
+      .default(() => new Date().toISOString()),
     employeeIdentificationCode: Joi.string().required(),
-    joiningDate: Joi.date().iso().default(() => new Date().toISOString()),
+    joiningDate: Joi.date()
+      .iso()
+      .default(() => new Date().toISOString()),
     phone: Joi.string().required(),
     isAdmin: Joi.boolean().required(),
     isOwner: Joi.boolean().required(),
@@ -63,9 +67,9 @@ const employeeRegisterValidate = (req, res, next) => {
     currency: Joi.string().required(),
     medicalLeaveDays: Joi.number().integer().min(0).required(),
     lopLeaveDays: Joi.number().allow(null),
-    isEmployeeActive : Joi.boolean().required(),
+    isEmployeeActive: Joi.boolean().required(),
     isReportingManager: Joi.boolean().required(),
-    reportingManager:Joi.string().required(),
+    reportingManager: Joi.string().required(),
     basicSalary: Joi.number().required(),
     hra: Joi.number().required(),
     pf: Joi.number().required(),
@@ -84,18 +88,16 @@ const employeeRegisterValidate = (req, res, next) => {
   });
   const { error, value } = schema.validate(req.body);
   if (error) {
-    console.error(error); // Log the error to see what's happening
+    console.error(error);
     return res.status(400).json({ message: "Bad request", error });
   }
   next();
 };
-
-
 
 const userLoginValidate = (req, res, next) => {
   const schema = Joi.object({
     email: Joi.string().email().required(),
-    password: Joi.string().min(8).alphanum().required()
+    password: Joi.string().min(8).alphanum().required(),
   });
   const { error, value } = schema.validate(req.body);
   if (error) {
@@ -104,37 +106,34 @@ const userLoginValidate = (req, res, next) => {
   next();
 };
 
-
-
-const emailValidate = (req, res, next) =>{
-  const schema = Joi.object({
-    email: Joi.string().email().required()
-  });
-  const { error, value } = schema.validate(req.body);
-  if (error) {
-    return res.status(400).json({ message: "Bad request", error });
-  }
-  next();
-}
-
-const otpValidate = (req, res, next) =>{
+const emailValidate = (req, res, next) => {
   const schema = Joi.object({
     email: Joi.string().email().required(),
-    otp:Joi.string().required(),
-    newPassword:Joi.string().required()
   });
   const { error, value } = schema.validate(req.body);
   if (error) {
     return res.status(400).json({ message: "Bad request", error });
   }
   next();
-}
+};
 
+const otpValidate = (req, res, next) => {
+  const schema = Joi.object({
+    email: Joi.string().email().required(),
+    otp: Joi.string().required(),
+    newPassword: Joi.string().required(),
+  });
+  const { error, value } = schema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ message: "Bad request", error });
+  }
+  next();
+};
 
 module.exports = {
-    userRegisterValidate,
-    userLoginValidate,
-    employeeRegisterValidate,
-    emailValidate,
-    otpValidate
-}
+  userRegisterValidate,
+  userLoginValidate,
+  employeeRegisterValidate,
+  emailValidate,
+  otpValidate,
+};
