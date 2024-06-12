@@ -120,6 +120,7 @@ const getLeaveHistory = async (req, res) => {
       leaveStatus: leave.leave_status,
       approvedBy: leave.processedBy,
       leaveId: leave._id,
+      reason:leave.reason,
       userId: leave.user,
     }));
 
