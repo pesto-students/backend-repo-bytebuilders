@@ -204,6 +204,7 @@ const getParticularTeamDetails = async (req, res) => {
     const teamName = team.name;
     const teamReportingManager = team.reportingManager;
     const teamMembers = team.members;
+    const team_id = team.id;
 
     // Fetch reporting manager details, excluding password
     const managerDetails = await User.findById(teamReportingManager).select(
@@ -216,6 +217,7 @@ const getParticularTeamDetails = async (req, res) => {
     }).select("-password");
 
     res.json({
+      team_id,
       teamName,
       teamReportingManager: managerDetails,
       teamMembers: membersDetails,
@@ -240,6 +242,7 @@ const fetchYourOwnTeam = async (req, res) => {
     // Extract team details
     const teamDetails = [];
     for (const team of teams) {
+      const teamId = team.id;
       const teamName = team.name;
       const teamReportingManager = team.reportingManager;
       const teamMembers = team.members;
@@ -255,6 +258,7 @@ const fetchYourOwnTeam = async (req, res) => {
       }).select("-password");
 
       teamDetails.push({
+        teamId,
         teamName,
         teamReportingManager: managerDetails,
         teamMembers: membersDetails,
