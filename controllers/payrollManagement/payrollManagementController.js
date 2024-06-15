@@ -51,7 +51,7 @@ const generatePayslip = async (req, res) => {
 
       const s3Params = {
         Bucket: process.env.AWS_S3_BUCKET_NAME,
-        Key: `payslips/${user._id}/${year}-${month}.pdf`,
+        Key: `payslips/${user._id}/${month}-${year}.pdf`,
         Body: buffer,
         ContentType: "application/pdf",
       };

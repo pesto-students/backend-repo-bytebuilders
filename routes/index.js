@@ -5,7 +5,7 @@ const {
   emailValidate,
   otpValidate,
   employeeRegisterValidate,
-} = require("../utils/userValidation");
+} = require("../middleware/userValidation");
 const {
   registerUser,
   loginUser,
