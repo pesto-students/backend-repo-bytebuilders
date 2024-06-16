@@ -26,6 +26,7 @@ const {
   deactivateEmployee,
   getAllEmployees,
   getParticularEmployee,
+  getUserDetailsFromAccessToken
 } = require("../controllers/employeeManagement/employeeManagementController");
 const {
   addHoliday,
@@ -109,6 +110,13 @@ routes.get(
   authenticateUser,
   getParticularEmployee
 );
+
+// particular user detail from access token
+routes.get(
+  "/get-user-details",
+  authenticateUser,
+  getUserDetailsFromAccessToken
+)
 
 // add designation
 routes.post("/add-designation", authenticateUser, addDesignation);
