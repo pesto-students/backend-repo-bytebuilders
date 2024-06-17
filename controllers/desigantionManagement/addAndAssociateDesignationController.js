@@ -10,28 +10,31 @@ const addDesignation = async (req, res) => {
     const existingDesignation = await DesignationModel.findOne({ name });
 
     if (existingDesignation) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Designation with this name already exists. Please choose a different name.",
-        });
+      return res.status(400).json({
+        message:
+          "Designation with this name already exists. Please choose a different name.",
+      });
     }
 
-    const user = await getUserById(req.user._id);
+    const currentUser = await getUserById(req.user._id); // Assuming you have a function to fetch the current user
 
-    const organisationName = user.organisationName;
+    // Checking authorisation
+    if (!currentUser.isAdmin) {
+      return res.status(403).json({
+        message: "Not authorized to add designations",
+      });
+    }
+
+    const organisationName = currentUser.organisationName;
 
     const newDesignation = new DesignationModel({ name, organisationName });
 
     await newDesignation.save();
 
-    res
-      .status(201)
-      .json({
-        message: "Designation added successfully",
-        data: newDesignation,
-      });
+    res.status(201).json({
+      message: "Designation added successfully",
+      data: newDesignation,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });

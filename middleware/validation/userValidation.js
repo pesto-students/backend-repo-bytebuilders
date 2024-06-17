@@ -38,10 +38,11 @@ const userRegisterValidate = (req, res, next) => {
     organisationName: Joi.string().required(),
     department: "",
     designation: "",
+    isPayrollExecutive: Joi.boolean().required(),
   });
   const { error, value } = schema.validate(req.body);
   if (error) {
-    console.error(error); 
+    console.error(error);
     return res.status(400).json({ message: "Bad request", error });
   }
   next();
@@ -85,6 +86,7 @@ const employeeRegisterValidate = (req, res, next) => {
     canCreateLeaves: Joi.boolean().required(),
     department: Joi.string().required(),
     designation: Joi.string().required(),
+    isPayrollExecutive: Joi.boolean().required(),
   });
   const { error, value } = schema.validate(req.body);
   if (error) {

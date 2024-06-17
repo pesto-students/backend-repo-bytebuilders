@@ -31,12 +31,10 @@ const addLeave = async (req, res) => {
     });
 
     if (overlappingLeave.length > 0) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Leave request overlaps with an existing leave entry. Please check your leave schedule.",
-        });
+      return res.status(400).json({
+        message:
+          "Leave request overlaps with an existing leave entry. Please check your leave schedule.",
+      });
     }
 
     let requestedDays = 0;
@@ -58,11 +56,9 @@ const addLeave = async (req, res) => {
 
     if (requestedDays > remainingLeaveDays) {
       const extraDays = requestedDays - remainingLeaveDays;
-      return res
-        .status(400)
-        .json({
-          message: `Not enough leave days. You are requesting ${extraDays} extra days. Please connect with HR.`,
-        });
+      return res.status(400).json({
+        message: `Not enough leave days. You are requesting ${extraDays} extra days. Please connect with HR.`,
+      });
     }
 
     user[`${leave_type}LeaveDays`] -= requestedDays;
@@ -91,14 +87,17 @@ const addLeave = async (req, res) => {
     // Query the reporting manager's details
     const reportingManager = await UserModel.findById(team.reportingManager);
 
-    const toMail = reportingManager.email
+    const toMail = reportingManager.email;
 
     if (!reportingManager) {
       return res.status(404).json({ message: "Reporting manager not found." });
     }
 
     // Send email notification to reporting manager
-    const emailTemplate = fs.readFileSync("templates/leaveNotification.html", "utf8");
+    const emailTemplate = fs.readFileSync(
+      "templates/leaveNotification.html",
+      "utf8"
+    );
 
     const htmlContent = emailTemplate
       .replace("{{reportingManagerName}}", reportingManager.fullName)
@@ -130,20 +129,16 @@ const addLeave = async (req, res) => {
     // Send email
     await transporter.sendMail(mailOptions);
 
-    return res
-      .status(201)
-      .json({
-        message: "Leave added successfully",
-        reason: leave_reason,
-        leave_id: newLeave._id,
-      });
+    return res.status(201).json({
+      message: "Leave added successfully",
+      reason: leave_reason,
+      leave_id: newLeave._id,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
-
-
 
 const getLeaveHistory = async (req, res) => {
   try {
@@ -165,7 +160,7 @@ const getLeaveHistory = async (req, res) => {
       leaveStatus: leave.leave_status,
       processedBy: leave.processedBy,
       leaveId: leave._id,
-      reason:leave.leave_reason,
+      reason: leave.leave_reason,
       userId: leave.user,
     }));
 
@@ -202,7 +197,9 @@ const processLeave = async (req, res) => {
 
     if (action !== "cancel") {
       if (leave.reportingManager.toString() !== loggedInUser._id.toString()) {
-        return res.status(403).json({ message: "Not authorized to process this leave request" });
+        return res
+          .status(403)
+          .json({ message: "Not authorized to process this leave request" });
       }
     }
 
@@ -214,7 +211,9 @@ const processLeave = async (req, res) => {
       leave.leaveProcessed = true;
       leave.processedBy = loggedInUser;
       await leave.save();
-      return res.status(200).json({ message: "Leave request approved successfully" });
+      return res
+        .status(200)
+        .json({ message: "Leave request approved successfully" });
     } else if (action === "reject" || action === "cancel") {
       const leave_days = leave.noOfDays;
       const leave_type = leave.leave_type;
@@ -227,7 +226,9 @@ const processLeave = async (req, res) => {
       leave.processedBy = loggedInUser;
       await leave.save();
       return res.status(200).json({
-        message: `Leave request ${action === "reject" ? "rejected" : "cancelled"} successfully`,
+        message: `Leave request ${
+          action === "reject" ? "rejected" : "cancelled"
+        } successfully`,
       });
     } else {
       return res.status(400).json({
@@ -239,7 +240,6 @@ const processLeave = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
-
 
 const getSubordinateLeaveRequests = async (req, res) => {
   try {

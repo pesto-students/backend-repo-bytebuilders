@@ -8,6 +8,13 @@ const addHoliday = async (req, res) => {
     try {
       const user = await getUserById(req.user._id);
 
+      // Check if user has permission to add holidays
+      if (!user.isAdmin && !user.isReportingManager) {
+        return res
+          .status(403)
+          .json({ message: "Not authorized to add holidays" });
+      }
+
       const { date, name } = req.body;
 
       if (!date) {

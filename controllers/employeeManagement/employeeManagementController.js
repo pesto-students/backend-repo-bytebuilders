@@ -9,6 +9,14 @@ const fs = require("fs");
 const addEmployee = async (req, res) => {
   try {
     const user = await getUserById(req.user._id);
+
+    // Checking authorisation
+    if (!user.isAdmin && !user.canAddEmployees) {
+      return res
+        .status(403)
+        .json({ message: "Not authorized to add employees" });
+    }
+
     const organisationName = user.organisationName;
 
     req.body.organisationName = organisationName;
@@ -76,30 +84,39 @@ const updateEmployee = async (req, res) => {
   const updateFields = req.body;
 
   try {
-    const currentEmployee = await UserModel.findById(id);
+    // Fetch the current user making the request
+    const currentUser = await getUserById(req.user._id);
 
-    if (
-      (updateFields.password &&
-        updateFields.password !== currentEmployee.password) ||
-      (updateFields.password &&
-        updateFields.password === currentEmployee.password)
-    ) {
-      currentEmployee.password = await bcrypt.hash(updateFields.password, 10);
-    } else if (!updateFields.password && currentEmployee.password) {
-      currentEmployee.password = await bcrypt.hash(
-        currentEmployee.password,
-        10
-      );
+    // Checking authorisation
+    if (!currentUser.canAddEmployees && !currentUser.isAdmin) {
+      return res
+        .status(403)
+        .json({ message: "Not authorized to update employees" });
     }
 
+    // Find the employee by ID
+    const currentEmployee = await UserModel.findById(id);
+
+    if (!currentEmployee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    // Update password if provided
+    if (updateFields.password) {
+      currentEmployee.password = await bcrypt.hash(updateFields.password, 10);
+    }
+
+    // Update other fields in updateFields
     Object.keys(updateFields).forEach((field) => {
       if (updateFields[field] !== undefined && field !== "password") {
         currentEmployee[field] = updateFields[field];
       }
     });
 
+    // Save updated employee
     const updatedEmployee = await currentEmployee.save();
 
+    // Respond with updated employee data
     res.status(200).json(updatedEmployee);
   } catch (error) {
     console.error(error);
@@ -111,16 +128,30 @@ const deactivateEmployee = async (req, res) => {
   const { id } = req.params;
 
   try {
+    // Fetch the current user making the request
+    const currentUser = await getUserById(req.user._id);
+
+    // Check if the current user is authorized to update employees
+    if (!currentUser.canAddEmployees && !currentUser.isAdmin) {
+      return res
+        .status(403)
+        .json({ message: "Not authorized to deactivate employees" });
+    }
+
+    // Find the employee by ID
     const user = await UserModel.findById(id);
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "Employee not found" });
     }
 
+    // Deactivate the employee
     user.isEmployeeActive = false;
 
-    user.save();
+    // Save the updated employee
+    await user.save();
 
+    // Respond with success message
     res.status(200).json({ message: "Employee deactivated successfully" });
   } catch (error) {
     console.error(error);
@@ -177,7 +208,7 @@ const getUserDetailsFromAccessToken = async (req, res) => {
 
     const userId = req.user._id;
 
-    if (typeof userId !== 'string' || userId.trim() === "") {
+    if (typeof userId !== "string" || userId.trim() === "") {
       return res.status(400).json({ error: "Invalid user ID format" });
     }
 
@@ -194,12 +225,11 @@ const getUserDetailsFromAccessToken = async (req, res) => {
   }
 };
 
-
 module.exports = {
   addEmployee,
   updateEmployee,
   deactivateEmployee,
   getAllEmployees,
   getParticularEmployee,
-  getUserDetailsFromAccessToken
+  getUserDetailsFromAccessToken,
 };

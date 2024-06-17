@@ -143,6 +143,10 @@ const UserSchema = new Schema({
     type: String,
     required: true,
   },
+  isPayrollExecutive: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const UserModel = mongoose.model("User", UserSchema);

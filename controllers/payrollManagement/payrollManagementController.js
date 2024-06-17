@@ -16,11 +16,9 @@ const generatePayslip = async (req, res) => {
 
     const existingPayslip = await Payslip.findOne({ userId, month, year });
     if (existingPayslip) {
-      return res
-        .status(400)
-        .json({
-          message: "Payslip already generated for the given month and year",
-        });
+      return res.status(400).json({
+        message: "Payslip already generated for the given month and year",
+      });
     }
 
     const payslipTemplateSource = fs.readFileSync(
@@ -106,11 +104,9 @@ const generatePayslip = async (req, res) => {
   }
 };
 
-const getAllPayslip = (req,res) =>{
-  
-}
+const getAllPayslip = (req, res) => {};
 
 module.exports = {
   generatePayslip,
-  getAllPayslip
+  getAllPayslip,
 };

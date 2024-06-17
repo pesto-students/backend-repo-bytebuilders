@@ -58,11 +58,9 @@ const addMembersToTeam = async (req, res) => {
     });
 
     if (members.length !== memberIds.length) {
-      return res
-        .status(400)
-        .json({
-          message: "Some members are not part of the company, kindly check",
-        });
+      return res.status(400).json({
+        message: "Some members are not part of the company, kindly check",
+      });
     }
 
     team.members.push(...members);

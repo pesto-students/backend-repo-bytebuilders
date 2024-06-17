@@ -6,28 +6,35 @@ const addDepartment = async (req, res) => {
   try {
     const { name } = req.body;
 
+    // Check if department with the given name already exists
     const existingDepartment = await departmentModel.findOne({ name });
 
     if (existingDepartment) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Department with this name already exists. Please choose a different name.",
-        });
+      return res.status(400).json({
+        message:
+          "Department with this name already exists. Please choose a different name.",
+      });
     }
 
-    const user = await getUserById(req.user._id);
+    const currentUser = await getUserById(req.user._id); // Assuming you have a function to fetch the current user
 
-    const organisationName = user.organisationName;
+    // Checking authorisation
+    if (!currentUser.isAdmin) {
+      return res.status(403).json({
+        message: "Not authorized to add departments",
+      });
+    }
+
+    const organisationName = currentUser.organisationName;
 
     const newDepartment = new departmentModel({ name, organisationName });
 
     await newDepartment.save();
 
-    res
-      .status(201)
-      .json({ message: "Department added successfully", data: newDepartment });
+    res.status(201).json({
+      message: "Department added successfully",
+      data: newDepartment,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });

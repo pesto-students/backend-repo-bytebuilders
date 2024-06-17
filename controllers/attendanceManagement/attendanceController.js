@@ -21,12 +21,10 @@ const punchIn = async (req, res) => {
     }
 
     if (punchTimes.length >= 24) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Limit Exceeded. You have already punched in and out 12 times today",
-        });
+      return res.status(400).json({
+        message:
+          "Limit Exceeded. You have already punched in and out 12 times today",
+      });
     }
 
     punchTimes.push(formatTime(current_time));
@@ -74,12 +72,10 @@ const punchOut = async (req, res) => {
     }
 
     if (punchTimes.length >= 24) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Limit Exceeded. You have already punched in and out 12 times today",
-        });
+      return res.status(400).json({
+        message:
+          "Limit Exceeded. You have already punched in and out 12 times today",
+      });
     }
 
     punchTimes.push(formatTime(current_time));
