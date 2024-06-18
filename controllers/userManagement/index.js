@@ -8,6 +8,9 @@ const nodemailer = require("nodemailer");
 const cache = require("memory-cache");
 const generateOrganisationUniqueId = require("../../utils/generateOrganisationUniqueId");
 
+const fs = require("fs");
+const path = require("path");
+
 dotenv.config();
 
 const secretKey = process.env.SECRET_KEY;
@@ -51,6 +54,38 @@ const registerUser = async (req, res) => {
 
     response.password = undefined;
 
+    // Read the email template
+    const templatePath = path.join(__dirname, '../../templates/welcomeUser.html');
+    let emailTemplate = fs.readFileSync(templatePath, 'utf-8');
+
+    // Replace placeholders in the template
+    emailTemplate = emailTemplate
+      .replace('{{organisation}}', organisationName)
+      .replace('{{fullName}}', req.body.fullName)
+      .replace('{{email}}', req.body.email)
+      .replace('{{password}}', req.body.password)
+      .replace('{{employeeId}}', response.employeeIdentificationCode)
+
+    // Send welcome email
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_SERVER,
+      port: process.env.SMTP_PORT,
+      secure: false,
+      auth: {
+        user: process.env.SMTP_USERNAME,
+        pass: process.env.SMTP_PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.SMTP_USERNAME,
+      to: req.body.email,
+      subject: `Welcome to ${organisationName}`,
+      html: emailTemplate,
+    };
+
+    await transporter.sendMail(mailOptions);
+
     return res.status(201).json({
       message: "Success",
       data: response,
@@ -62,6 +97,7 @@ const registerUser = async (req, res) => {
     });
   }
 };
+
 
 const loginUser = async (req, res) => {
   try {
