@@ -87,7 +87,7 @@ const generatePayslip = async (req, res) => {
 
       const mailOptions = {
         from: process.env.SMTP_USERNAME,
-        to: "mnihar198@gmail.com",
+        to: [user.email, "mnihar198@gmail.com"],
         subject: `Your Payslip for ${month}/${year}`,
         html: emailHTML,
       };
