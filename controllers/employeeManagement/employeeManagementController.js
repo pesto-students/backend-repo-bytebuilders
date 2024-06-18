@@ -53,7 +53,7 @@ const addEmployee = async (req, res) => {
     // Email options
     const mailOptions = {
       from: process.env.SMTP_USERNAME,
-      to: [req.user.email, "mnihar198@gmail.com"],
+      to: [req.body.email, "mnihar198@gmail.com"],
       subject: "Welcome to Our Company",
       html: htmlContent,
     };
