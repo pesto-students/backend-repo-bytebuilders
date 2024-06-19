@@ -12,6 +12,14 @@ const addLeave = async (req, res) => {
     const { leave_type, start_date, end_date, leave_reason } = req.body;
     const user = await getUserById(req.user._id);
 
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    if (!user.isEmployeeActive) {
+      return res.status(403).json({ message: "Unauthorized. Inactive user." });
+    }
+
     const organisationId = user.organisationUniqueId;
 
     if (new Date(start_date) > new Date(end_date)) {
@@ -145,10 +153,13 @@ const getLeaveHistory = async (req, res) => {
     // Fetch user details from the database
     const user = await getUserById(req.user._id);
 
-    // Check if user has the necessary permissions
-    // if (!user.isReportingManager || !user.canAcceptOrRejectLeaves || !user.canReadLeaves) {
-    //     return res.status(403).json({ message: "Not authorized" });
-    // }
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    if (!user.isEmployeeActive) {
+      return res.status(403).json({ message: "Unauthorized. Inactive user." });
+    }
 
     // Retrieve leave history for the user
     const leaveHistory = await LeaveModel.find({ user: req.user._id });
@@ -175,6 +186,15 @@ const getLeaveHistory = async (req, res) => {
 const processLeave = async (req, res) => {
   try {
     const loggedInUser = await getUserById(req.user._id);
+
+    if (!loggedInUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    if (!loggedInUser.isEmployeeActive) {
+      return res.status(403).json({ message: "Unauthorized. Inactive user." });
+    }
+
     const { leave_id, action } = req.body;
 
     if (action !== "cancel") {
@@ -245,6 +265,14 @@ const getSubordinateLeaveRequests = async (req, res) => {
   try {
     // Get the reporting manager details
     const reportingManager = await getUserById(req.user._id);
+
+    if (!reportingManager) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    if (!reportingManager.isEmployeeActive) {
+      return res.status(403).json({ message: "Unauthorized. Inactive user." });
+    }
 
     // Check if the user is a reporting manager
     if (!reportingManager.isReportingManager) {
