@@ -8,6 +8,16 @@ const addHoliday = async (req, res) => {
     try {
       const user = await getUserById(req.user._id);
 
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      if (!user.isEmployeeActive) {
+        return res
+          .status(403)
+          .json({ message: "Unauthorized. Inactive user." });
+      }
+
       // Check if user has permission to add holidays
       if (!user.isAdmin && !user.isReportingManager) {
         return res
