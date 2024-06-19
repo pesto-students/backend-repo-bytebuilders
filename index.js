@@ -7,7 +7,7 @@ const connectDB = require("./config/db");
 const app = express();
 const PORT = process.env.PORT || 8000;
 
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+app.use(cors({ origin: "https://master--jocular-fairy-66a01a.netlify.app/", credentials: true }));
 app.use(bodyParser.json());
 app.use("/api/", routes);
 
