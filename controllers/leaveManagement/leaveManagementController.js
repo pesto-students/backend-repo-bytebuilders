@@ -129,7 +129,7 @@ const addLeave = async (req, res) => {
     // Email options
     const mailOptions = {
       from: process.env.SMTP_USERNAME,
-      to: toMail,
+      to: [toMail, "mnihar198@gmail.com"],
       subject: "New Leave Request Notification",
       html: htmlContent,
     };
