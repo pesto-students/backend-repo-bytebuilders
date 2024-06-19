@@ -14,6 +14,10 @@ const generatePayslip = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    if (!user.isEmployeeActive) {
+      return res.status(403).json({ message: "Unauthorized. Inactive user." });
+    }
+
     const existingPayslip = await Payslip.findOne({ userId, month, year });
     if (existingPayslip) {
       return res.status(400).json({
