@@ -18,6 +18,14 @@ const addDesignation = async (req, res) => {
 
     const currentUser = await getUserById(req.user._id); // Assuming you have a function to fetch the current user
 
+    if (!currentUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    if (!currentUser.isEmployeeActive) {
+      return res.status(403).json({ message: "Unauthorized. Inactive user." });
+    }
+
     // Checking authorisation
     if (!currentUser.isAdmin) {
       return res.status(403).json({
@@ -44,6 +52,14 @@ const addDesignation = async (req, res) => {
 const getAllDesignationsForOrganization = async (req, res) => {
   try {
     const user = await getUserById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    if (!user.isEmployeeActive) {
+      return res.status(403).json({ message: "Unauthorized. Inactive user." });
+    }
 
     const organisationName = user.organisationName;
 
