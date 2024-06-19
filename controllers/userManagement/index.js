@@ -66,9 +66,16 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const user = await UserModel.findOne({ email: req.body.email });
+
     if (!user) {
       return res.status(401).json({
         message: "Auth failed, Invalid credentials",
+      });
+    }
+
+    if (!user.isEmployeeActive) {
+      return res.status(403).json({
+        message: "Auth failed, User is not an active employee",
       });
     }
 
@@ -149,8 +156,28 @@ const loginUser = async (req, res) => {
 const sendOTPForForgetPassword = async (req, res) => {
   try {
     const email = req.body.email;
+
+    // Check if the user exists and is active
+    const user = await UserModel.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (!user.isAdmin) {
+      return res
+        .status(401)
+        .json({ message: "Not authorised, please contact admin" });
+    }
+
+    if (!user.isEmployeeActive) {
+      return res
+        .status(403)
+        .json({ message: "User is not an active employee" });
+    }
+
     const otp = Math.floor(1000 + Math.random() * 9000);
-    const expiryTime = 5 * 60 * 1000;
+    const expiryTime = 5 * 60 * 1000; // 5 minutes
 
     cache.put(email, otp, expiryTime);
 
@@ -218,11 +245,3 @@ module.exports = {
   confirmOTP,
 };
 
-// function generateOrganisationUniqueId(companyName) {
-
-//   const cleanName = companyName.toUpperCase().replace(/[^a-zA-Z0-9]/g, '');
-//   const numericValue = cleanName.length * 7;
-//   const uniqueId = `${cleanName}-${numericValue}`;
-
-//   return uniqueId;
-// }
