@@ -34,6 +34,7 @@ const queryEmployeesOnLeave = async (req, res) => {
       start_date: { $lt: nextDate },
       end_date: { $gte: currentDate },
       organisationUniqueId: organisationId,
+      leave_status: "approved", 
     });
 
     console.log(
