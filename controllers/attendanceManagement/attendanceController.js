@@ -109,6 +109,15 @@ const punchOut = async (req, res) => {
 
 const getPunchData = async (req, res) => {
   const user = await getUserById(req.user._id);
+
+  if (!user) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
+  if (!user.isEmployeeActive) {
+    return res.status(403).json({ message: "Unauthorized. Inactive user." });
+  }
+
   const startDate = user.joiningDate;
 
   // const { startDate } = req.query;
