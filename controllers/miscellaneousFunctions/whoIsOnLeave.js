@@ -17,7 +17,9 @@ const queryEmployeesOnLeave = async (req, res) => {
     const organisationId = user.organisationUniqueId;
 
     if (!organisationId) {
-      return res.status(400).json({ message: "Organisation ID not found for the user" });
+      return res
+        .status(400)
+        .json({ message: "Organisation ID not found for the user" });
     }
 
     const currentDate = new Date();
@@ -31,20 +33,24 @@ const queryEmployeesOnLeave = async (req, res) => {
     const leavesOnCurrentDate = await LeaveModel.find({
       start_date: { $lt: nextDate },
       end_date: { $gte: currentDate },
-      organisationUniqueId: organisationId
+      organisationUniqueId: organisationId,
     });
 
-    console.log(`Leaves on Current Date: ${JSON.stringify(leavesOnCurrentDate)}`);
+    console.log(
+      `Leaves on Current Date: ${JSON.stringify(leavesOnCurrentDate)}`
+    );
 
     if (leavesOnCurrentDate.length === 0) {
       return res.status(200).json({ message: "No employees on leave today" });
     }
 
-    const uniqueUserIds = [...new Set(leavesOnCurrentDate.map((leave) => leave.user.toString()))];
+    const uniqueUserIds = [
+      ...new Set(leavesOnCurrentDate.map((leave) => leave.user.toString())),
+    ];
     console.log(`Unique User IDs on Leave: ${uniqueUserIds}`);
 
     const employeesOnLeave = await UserModel.find({
-      _id: { $in: uniqueUserIds }
+      _id: { $in: uniqueUserIds },
     });
 
     console.log(`Employees on Leave: ${JSON.stringify(employeesOnLeave)}`);
