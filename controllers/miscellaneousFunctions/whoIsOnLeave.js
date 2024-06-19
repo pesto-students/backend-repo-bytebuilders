@@ -10,6 +10,10 @@ const queryEmployeesOnLeave = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    if (!user.isEmployeeActive) {
+      return res.status(403).json({ message: "Unauthorized. Inactive user." });
+    }
+
     const organisationId = user.organisationUniqueId;
 
     if (!organisationId) {
