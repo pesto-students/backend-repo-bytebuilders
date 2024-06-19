@@ -8,26 +8,25 @@ const createTeam = async (req, res) => {
     const { name } = req.body;
     const user = await getUserById(req.user._id);
 
-    // Check if the user is authorized
+    if (!user.isEmployeeActive) {
+      return res.status(403).json({ message: "Unauthorized. Inactive user." });
+    }
+
     if (!user.isAdmin && !user.isReportingManager) {
       return res.status(403).json({ message: "Unauthorized" });
     }
 
-    // Assign the user creating the team as the reporting manager
     const reportingManager = user;
     const orgId = user.organisationUniqueId;
 
-    // Create a new team instance
     const team = new Team({
       name,
       organizationId: orgId,
-      reportingManager: reportingManager._id, // Saving the reporting manager's ID
+      reportingManager: reportingManager._id,
     });
 
-    // Add reporting manager to team members
     team.members.push(reportingManager._id);
 
-    // Save the team
     await team.save();
 
     res.status(201).json({ message: "Team created successfully", team });
@@ -36,14 +35,17 @@ const createTeam = async (req, res) => {
   }
 };
 
+
 const addMembersToTeam = async (req, res) => {
   try {
     const { teamId } = req.params;
     const { memberIds } = req.body;
     const user = await getUserById(req.user._id);
-    const teamLeader = user;
 
-    // Check if the user is authorized
+    if (!user.isEmployeeActive) {
+      return res.status(403).json({ message: "Unauthorized. Inactive user." });
+    }
+
     if (!user.isAdmin && !user.isReportingManager) {
       return res.status(403).json({ message: "Unauthorized" });
     }
@@ -51,10 +53,9 @@ const addMembersToTeam = async (req, res) => {
     const team = await Team.findById(teamId);
     if (!team) return res.status(404).json({ message: "Team not found" });
 
-    // Find active members only
     const members = await User.find({
       _id: { $in: memberIds },
-      isEmployeeActive: true, // Only include active employees
+      isEmployeeActive: true,
     });
 
     if (members.length !== memberIds.length) {
@@ -63,10 +64,9 @@ const addMembersToTeam = async (req, res) => {
       });
     }
 
-    team.members.push(...members);
+    team.members.push(...members.map(m => m._id));
     await team.save();
 
-    // Fetch userDetails for each member (excluding password)
     const membersDetails = await User.find({
       _id: { $in: memberIds },
     }).select("-password");
@@ -74,7 +74,7 @@ const addMembersToTeam = async (req, res) => {
     res.json({
       message: "Members added successfully",
       team,
-      teamLeader,
+      teamLeader: user,
       membersDetails,
     });
   } catch (error) {
@@ -83,6 +83,7 @@ const addMembersToTeam = async (req, res) => {
   }
 };
 
+
 // Remove members from a team
 const removeMembersFromTeam = async (req, res) => {
   try {
@@ -90,26 +91,25 @@ const removeMembersFromTeam = async (req, res) => {
     const { memberIds } = req.body;
     const user = await getUserById(req.user._id);
 
-    // Check if the user is authorized
-    if (!user.isAdmin || !user.isReportingManager) {
+    if (!user.isEmployeeActive) {
+      return res.status(403).json({ message: "Unauthorized. Inactive user." });
+    }
+
+    if (!user.isAdmin && !user.isReportingManager) {
       return res.status(403).json({ message: "Unauthorized" });
     }
 
     const team = await Team.findById(teamId);
     if (!team) return res.status(404).json({ message: "Team not found" });
 
-    // Remove members from the team
     team.members = team.members.filter(
-      (member) => !memberIds.includes(member.toString())
+      member => !memberIds.includes(member.toString())
     );
     await team.save();
 
-    // Fetch userDetails for each remaining member
-    const remainingMembersDetails = [];
-    for (const memberId of team.members) {
-      const memberDetails = await User.findById(memberId);
-      remainingMembersDetails.push(memberDetails);
-    }
+    const remainingMembersDetails = await User.find({
+      _id: { $in: team.members },
+    }).select("-password");
 
     res.json({
       message: "Members removed successfully",
@@ -121,59 +121,66 @@ const removeMembersFromTeam = async (req, res) => {
   }
 };
 
+
 // Update team name
 const updateTeamName = async (req, res) => {
   try {
     const { teamId } = req.params;
     const { name } = req.body;
-
     const user = await getUserById(req.user._id);
-    // Check if the user is authorized
-    if (!user.isAdmin || !user.isReportingManager) {
+
+    if (!user.isEmployeeActive) {
+      return res.status(403).json({ message: "Unauthorized. Inactive user." });
+    }
+
+    if (!user.isAdmin && !user.isReportingManager) {
       return res.status(403).json({ message: "Unauthorized" });
     }
+
     const team = await Team.findByIdAndUpdate(teamId, { name }, { new: true });
     if (!team) return res.status(404).json({ message: "Team not found" });
+
     res.json({ message: "Team name updated successfully", team });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
+
 // Delete team
 const deleteTeam = async (req, res) => {
   try {
     const { teamId } = req.params;
-    // Check if the user is authorized
-
     const user = await getUserById(req.user._id);
-    // Check if the user is authorized
-    if (!user.isAdmin || !user.isReportingManager) {
+
+    if (!user.isEmployeeActive) {
+      return res.status(403).json({ message: "Unauthorized. Inactive user." });
+    }
+
+    if (!user.isAdmin && !user.isReportingManager) {
       return res.status(403).json({ message: "Unauthorized" });
     }
+
     const team = await Team.findByIdAndDelete(teamId);
     if (!team) return res.status(404).json({ message: "Team not found" });
+
     res.json({ message: "Team deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
+
 const getAllTeams = async (req, res) => {
   try {
     const user = await getUserById(req.user._id);
-    const userOrganisationId = user.organisationUniqueId;
 
-    // Check if the user is authorized
-    if (!user) {
-      return res.status(403).json({ message: "Unauthorized" });
+    if (!user.isEmployeeActive) {
+      return res.status(403).json({ message: "Unauthorized. Inactive user." });
     }
 
-    // Find all teams that belong to the same organization as the user
-    const teams = await Team.find(
-      { organizationId: userOrganisationId },
-      { name: 1, organizationId: 1 }
-    );
+    const userOrganisationId = user.organisationUniqueId;
+    const teams = await Team.find({ organizationId: userOrganisationId }, { name: 1, organizationId: 1 });
 
     res.json({ teams });
   } catch (error) {
@@ -181,38 +188,29 @@ const getAllTeams = async (req, res) => {
   }
 };
 
+
 // Get particular team details
 const getParticularTeamDetails = async (req, res) => {
   try {
     const { teamId } = req.params;
     const user = await getUserById(req.user._id);
 
-    // Check if the user is authorized
-    if (!user) {
-      return res.status(403).json({ message: "Unauthorized" });
+    if (!user.isEmployeeActive) {
+      return res.status(403).json({ message: "Unauthorized. Inactive user." });
     }
 
-    // Find the team
     const team = await Team.findById(teamId);
     if (!team) {
       return res.status(404).json({ message: "Team not found" });
     }
 
-    // Extract team details
     const teamName = team.name;
     const teamReportingManager = team.reportingManager;
     const teamMembers = team.members;
     const team_id = team.id;
 
-    // Fetch reporting manager details, excluding password
-    const managerDetails = await User.findById(teamReportingManager).select(
-      "-password"
-    );
-
-    // Fetch details for each team member, excluding password
-    const membersDetails = await User.find({
-      _id: { $in: teamMembers },
-    }).select("-password");
+    const managerDetails = await User.findById(teamReportingManager).select("-password");
+    const membersDetails = await User.find({ _id: { $in: teamMembers } }).select("-password");
 
     res.json({
       team_id,
@@ -225,35 +223,26 @@ const getParticularTeamDetails = async (req, res) => {
   }
 };
 
+
 const fetchYourOwnTeam = async (req, res) => {
   try {
     const user = await getUserById(req.user._id);
 
-    // Check if the user is authorized
-    if (!user) {
-      return res.status(403).json({ message: "Unauthorized" });
+    if (!user.isEmployeeActive) {
+      return res.status(403).json({ message: "Unauthorized. Inactive user." });
     }
 
-    // Find all teams where the user is a member
     const teams = await Team.find({ members: user._id });
-
-    // Extract team details
     const teamDetails = [];
+
     for (const team of teams) {
       const teamId = team.id;
       const teamName = team.name;
       const teamReportingManager = team.reportingManager;
       const teamMembers = team.members;
 
-      // Fetch reporting manager details, excluding password
-      const managerDetails = await User.findById(teamReportingManager).select(
-        "-password"
-      );
-
-      // Fetch details for each team member, excluding password
-      const membersDetails = await User.find({
-        _id: { $in: teamMembers },
-      }).select("-password");
+      const managerDetails = await User.findById(teamReportingManager).select("-password");
+      const membersDetails = await User.find({ _id: { $in: teamMembers } }).select("-password");
 
       teamDetails.push({
         teamId,
@@ -268,6 +257,7 @@ const fetchYourOwnTeam = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 module.exports = {
   createTeam,
