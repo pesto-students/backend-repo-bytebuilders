@@ -27,6 +27,7 @@ const {
   getAllEmployees,
   getParticularEmployee,
   getUserDetailsFromAccessToken,
+  setPasswordForEmployee,
 } = require("../controllers/employeeManagement/employeeManagementController");
 const {
   addHoliday,
@@ -116,6 +117,12 @@ routes.get(
   "/get-user-details",
   authenticateUser,
   getUserDetailsFromAccessToken
+);
+
+routes.patch(
+  "/update-password/:userid",
+  authenticateUser,
+  setPasswordForEmployee
 );
 
 // add designation
