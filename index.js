@@ -15,13 +15,39 @@ const sslOptions = {
   cert: fs.readFileSync('/etc/ssl/certs/apache-selfsigned.crt')
 };
 
-app.use(cors({ origin: "https://master--jocular-fairy-66a01a.netlify.app/", credentials: true }));
+// CORS configuration
+const allowedOrigins = ["https://master--jocular-fairy-66a01a.netlify.app"];
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true); // Allow requests with no origin (like mobile apps or curl requests)
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true
+}));
+
+// Middleware
 app.use(bodyParser.json());
 app.use("/api/", routes);
 
+// Handle preflight requests
+app.options('*', cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      return callback(new Error('Not allowed by CORS'), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true
+}));
+
+// Connect to the database and start the server
 connectDB()
   .then(() => {
-    // Create HTTPS server
     https.createServer(sslOptions, app).listen(PORT, () => {
       console.log(`HTTPS Server is running on PORT: ${PORT}`);
     });
