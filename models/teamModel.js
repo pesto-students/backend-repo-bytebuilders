@@ -5,7 +5,6 @@ const TeamSchema = new Schema({
   name: {
     type: String,
     required: true,
-    unique: false,
   },
   organizationId: {
     type: String,
@@ -23,6 +22,9 @@ const TeamSchema = new Schema({
     null: true,
   },
 });
+
+// Create a compound index on name and organizationId to ensure uniqueness within an organization
+TeamSchema.index({ name: 1, organizationId: 1 }, { unique: true });
 
 const TeamModel = mongoose.model("Team", TeamSchema);
 module.exports = TeamModel;
