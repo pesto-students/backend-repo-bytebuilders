@@ -218,7 +218,7 @@ routes.get(
 routes.get("/fetch-your-own-team", authenticateUser, fetchYourOwnTeam);
 
 
-app.get(
+routes.get(
   '/.well-known/pki-validation/46013F07675AFEED4447AB700DCA52C0',
   (req, res) => {
     res.sendStatus(200);
