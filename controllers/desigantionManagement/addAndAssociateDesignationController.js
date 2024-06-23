@@ -6,16 +6,6 @@ const addDesignation = async (req, res) => {
   try {
     const { name } = req.body;
 
-    // Check if designation with the given name already exists
-    const existingDesignation = await DesignationModel.findOne({ name, organisationName });
-
-    if (existingDesignation) {
-      return res.status(400).json({
-        message:
-          "Designation with this name already exists. Please choose a different name.",
-      });
-    }
-
     const currentUser = await getUserById(req.user._id);
 
     if (!currentUser) {
@@ -34,6 +24,16 @@ const addDesignation = async (req, res) => {
     }
 
     const organisationName = currentUser.organisationName;
+
+    // Check if designation with the given name already exists in the same organisation
+    const existingDesignation = await DesignationModel.findOne({ name, organisationName });
+
+    if (existingDesignation) {
+      return res.status(400).json({
+        message:
+          "Designation with this name already exists. Please choose a different name.",
+      });
+    }
 
     const newDesignation = new DesignationModel({ name, organisationName });
 
