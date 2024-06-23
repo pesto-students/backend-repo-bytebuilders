@@ -10,16 +10,16 @@ const app = express();
 const PORT = process.env.PORT || 8000;
 
 // Path to the SSL certificate and key files
-const sslOptions = {
-  key: fs.readFileSync('/etc/ssl/private/apache-selfsigned.key'),
-  cert: fs.readFileSync('/etc/ssl/certs/apache-selfsigned.crt')
-};
+// const sslOptions = {
+//   key: fs.readFileSync('/etc/ssl/private/apache-selfsigned.key'),
+//   cert: fs.readFileSync('/etc/ssl/certs/apache-selfsigned.crt')
+// };
 
 // CORS configuration
 const allowedOrigins = ["https://master--jocular-fairy-66a01a.netlify.app"];
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true); 
     if (allowedOrigins.indexOf(origin) === -1) {
       const msg = 'The CORS policy for this site does not allow access from the specified origin.';
       return callback(new Error(msg), false);
@@ -48,7 +48,8 @@ app.options('*', cors({
 // Connect to the database and start the server
 connectDB()
   .then(() => {
-    https.createServer(sslOptions, app).listen(PORT, () => {
+    // https.createServer(sslOptions, app).listen(PORT, () => {
+      http.createServer(app).listen(PORT, () => {
       console.log(`HTTPS Server is running on PORT: ${PORT}`);
     });
   })
