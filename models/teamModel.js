@@ -5,7 +5,7 @@ const TeamSchema = new Schema({
   name: {
     type: String,
     required: true,
-    unique: true,
+    unique: false,
   },
   organizationId: {
     type: String,
