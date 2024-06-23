@@ -40,8 +40,6 @@ const createTeam = async (req, res) => {
   }
 };
 
-
-
 const addMembersToTeam = async (req, res) => {
   try {
     const { teamId } = req.params;
