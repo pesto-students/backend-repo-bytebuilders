@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const connectDB = require("./config/db");
 const http = require('http');
 const fs = require('fs');
+const ssl = require("./routes")
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -32,7 +33,7 @@ app.use(cors({
 // Middleware
 app.use(bodyParser.json());
 app.use("/api/", routes);
-app.use("/",ssl)
+app.use("/",ssl);
 
 // Handle preflight requests
 app.options('*', cors({
