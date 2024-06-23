@@ -5,7 +5,6 @@ const bodyParser = require("body-parser");
 const connectDB = require("./config/db");
 const http = require('http');
 const fs = require('fs');
-const ssl = require("./routes")
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -33,7 +32,15 @@ app.use(cors({
 // Middleware
 app.use(bodyParser.json());
 app.use("/api/", routes);
-app.use("/",ssl);
+
+
+app.get(
+  '/.well-known/pki-validation/46013F07675AFEED4447AB700DCA52C0',
+  (req, res) => {
+    res.sendStatus(200);
+    res.sendFile(`/46013F07675AFEED4447AB700DCA52C0.txt`);
+  }
+);
 
 // Handle preflight requests
 app.options('*', cors({
