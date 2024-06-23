@@ -7,7 +7,7 @@ const addDesignation = async (req, res) => {
     const { name } = req.body;
 
     // Check if designation with the given name already exists
-    const existingDesignation = await DesignationModel.findOne({ name });
+    const existingDesignation = await DesignationModel.findOne({ name, organisationName });
 
     if (existingDesignation) {
       return res.status(400).json({
@@ -16,7 +16,7 @@ const addDesignation = async (req, res) => {
       });
     }
 
-    const currentUser = await getUserById(req.user._id); // Assuming you have a function to fetch the current user
+    const currentUser = await getUserById(req.user._id);
 
     if (!currentUser) {
       return res.status(404).json({ error: "User not found" });
