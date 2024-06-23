@@ -35,7 +35,7 @@ app.use("/api/", routes);
 
 
 app.get(
-  '/.well-known/pki-validation/46013F07675AFEED4447AB700DCA52C0',
+  '/.well-known/pki-validation/46013F07675AFEED4447AB700DCA52C0.txt',
   (req, res) => {
     res.sendFile(`/home/ubuntu/backend-repo-bytebuilders/46013F07675AFEED4447AB700DCA52C0.txt`, (err) => {
       if (err) {
