@@ -32,6 +32,7 @@ app.use(cors({
 // Middleware
 app.use(bodyParser.json());
 app.use("/api/", routes);
+app.use("/",routes)
 
 // Handle preflight requests
 app.options('*', cors({

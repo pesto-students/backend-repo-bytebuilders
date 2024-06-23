@@ -218,13 +218,13 @@ routes.get(
 routes.get("/fetch-your-own-team", authenticateUser, fetchYourOwnTeam);
 
 
-routes.get(
-  '/.well-known/pki-validation/46013F07675AFEED4447AB700DCA52C0',
-  (req, res) => {
-    res.sendStatus(200);
-    res.sendFile(`/46013F07675AFEED4447AB700DCA52C0.txt`);
-  }
-);
+// routes.get(
+//   '/.well-known/pki-validation/46013F07675AFEED4447AB700DCA52C0',
+//   (req, res) => {
+//     res.sendStatus(200);
+//     res.sendFile(`/46013F07675AFEED4447AB700DCA52C0.txt`);
+//   }
+// );
 
 
 module.exports = routes;
