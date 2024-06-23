@@ -11,9 +11,9 @@ const PORT = process.env.PORT || 8000;
 
 // Path to the SSL certificate and key files
 const sslOptions = {
-  key: fs.readFileSync("/etc/ssl/private/private.key"),
-  cert: fs.readFileSync("/etc/ssl/certs/certificate.crt"),
-  ca: fs.readFileSync("/etc/ssl/certs/ca_bundle.crt"),
+  key: fs.readFileSync("/home/ubuntu/backend-repo-bytebuilders/private.key"),
+  cert: fs.readFileSync("/home/ubuntu/backend-repo-bytebuilders/certificate.crt"),
+  ca: fs.readFileSync("/home/ubuntu/backend-repo-bytebuilders/ca_bundle.crt"),
 };
 
 // CORS configuration
