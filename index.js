@@ -38,7 +38,7 @@ app.get(
   '/.well-known/pki-validation/46013F07675AFEED4447AB700DCA52C0',
   (req, res) => {
     res.sendStatus(200);
-    res.sendFile(`/46013F07675AFEED4447AB700DCA52C0.txt`);
+    res.sendFile(`/home/ubuntu/backend-repo-bytebuilders/46013F07675AFEED4447AB700DCA52C0.txt`);
   }
 );
 
