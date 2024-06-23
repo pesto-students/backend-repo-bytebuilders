@@ -31,9 +31,15 @@ const createTeam = async (req, res) => {
 
     res.status(201).json({ message: "Team created successfully", team });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    if (error.code === 11000) {
+      // This code handles the duplicate key error
+      res.status(400).json({ message: "A team with this name already exists in the organization." });
+    } else {
+      res.status(500).json({ message: error.message });
+    }
   }
 };
+
 
 
 const addMembersToTeam = async (req, res) => {
