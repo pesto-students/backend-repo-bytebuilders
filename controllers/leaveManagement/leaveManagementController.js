@@ -20,12 +20,16 @@ const addLeave = async (req, res) => {
       return res.status(403).json({ message: "Unauthorized. Inactive user." });
     }
 
+    // Get the team of the user
+    const team = await teamModel.findOne({ members: user._id });
+    if (!team) {
+      return res.status(404).json({ message: "User is not part of any team." });
+    }
+
     const organisationId = user.organisationUniqueId;
 
     if (new Date(start_date) > new Date(end_date)) {
-      return res
-        .status(400)
-        .json({ message: "Start date cannot be after end date." });
+      return res.status(400).json({ message: "Start date cannot be after end date." });
     }
 
     const overlappingLeave = await LeaveModel.find({
@@ -40,8 +44,7 @@ const addLeave = async (req, res) => {
 
     if (overlappingLeave.length > 0) {
       return res.status(400).json({
-        message:
-          "Leave request overlaps with an existing leave entry. Please check your leave schedule.",
+        message: "Leave request overlaps with an existing leave entry. Please check your leave schedule.",
       });
     }
 
@@ -72,12 +75,6 @@ const addLeave = async (req, res) => {
     user[`${leave_type}LeaveDays`] -= requestedDays;
     await user.save();
 
-    // Get the team of the user
-    const team = await teamModel.findOne({ members: user._id });
-    if (!team) {
-      return res.status(404).json({ message: "User is not part of any team." });
-    }
-
     const newLeave = new LeaveModel({
       user: user._id,
       leave_type,
@@ -95,17 +92,14 @@ const addLeave = async (req, res) => {
     // Query the reporting manager's details
     const reportingManager = await UserModel.findById(team.reportingManager);
 
-    const toMail = reportingManager.email;
-
     if (!reportingManager) {
       return res.status(404).json({ message: "Reporting manager not found." });
     }
 
+    const toMail = reportingManager.email;
+
     // Send email notification to reporting manager
-    const emailTemplate = fs.readFileSync(
-      "templates/leaveNotification.html",
-      "utf8"
-    );
+    const emailTemplate = fs.readFileSync("templates/leaveNotification.html", "utf8");
 
     const htmlContent = emailTemplate
       .replace("{{reportingManagerName}}", reportingManager.fullName)
@@ -147,6 +141,7 @@ const addLeave = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 const getLeaveHistory = async (req, res) => {
   try {
