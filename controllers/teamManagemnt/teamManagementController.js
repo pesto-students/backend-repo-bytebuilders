@@ -19,8 +19,12 @@ const createTeam = async (req, res) => {
     const reportingManager = user;
     const orgId = user.organisationUniqueId;
 
+    const randomString = Math.random().toString(36).substring(2, 7);
+    const teamMockedName = `${name}_${randomString}`;
+
     const team = new Team({
       name,
+      teamMockedName,
       organizationId: orgId,
       reportingManager: reportingManager._id,
     });
@@ -29,16 +33,16 @@ const createTeam = async (req, res) => {
 
     await team.save();
 
-    res.status(201).json({ message: "Team created successfully", team });
+    res.status(201).json({ message: "Team created successfully", teamMockedName });
   } catch (error) {
     if (error.code === 11000) {
-      // This code handles the duplicate key error
       res.status(400).json({ message: "A team with this name already exists in the organization." });
     } else {
       res.status(500).json({ message: error.message });
     }
   }
 };
+
 
 const addMembersToTeam = async (req, res) => {
   try {
@@ -208,7 +212,7 @@ const getParticularTeamDetails = async (req, res) => {
       return res.status(404).json({ message: "Team not found" });
     }
 
-    const teamName = team.name;
+    const teamMockedName = team.teamMockedName;
     const teamReportingManager = team.reportingManager;
     const teamMembers = team.members;
     const team_id = team.id;
@@ -218,7 +222,7 @@ const getParticularTeamDetails = async (req, res) => {
 
     res.json({
       team_id,
-      teamName,
+      teamMockedName,
       teamReportingManager: managerDetails,
       teamMembers: membersDetails,
     });
@@ -226,6 +230,7 @@ const getParticularTeamDetails = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 
 const fetchYourOwnTeam = async (req, res) => {
