@@ -65,9 +65,9 @@ const getAllHolidaysByOrganization = async (req, res) => {
 
     const organisationName = user.organisationName;
 
-    const holidays = await HolidayModel.find({
-      organisation: organisationName,
-    });
+    const holidays = await HolidayModel.find({ organisation: organisationName })
+    .sort({ date: 1 }) 
+    .exec();
 
     return res.status(200).json(holidays);
   } catch (error) {

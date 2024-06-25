@@ -188,8 +188,8 @@ const getPunchData = async (req, res) => {
     // Move to the next day
     currentDate.setDate(currentDate.getDate() + 1);
   }
-
-  return res.status(200).json(punchDataList);
+  console.log(punchDataList)
+  return res.status(200).json(punchDataList.reverse());
 };
 
 const getCurrentTimeAndDate = () => {

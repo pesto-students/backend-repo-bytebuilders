@@ -171,7 +171,7 @@ const getLeaveHistory = async (req, res) => {
     }));
 
     // Return the leave history
-    return res.status(200).json(leaveData);
+    return res.status(200).json(leaveData.reverse());
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal server error" });
