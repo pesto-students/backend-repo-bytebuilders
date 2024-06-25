@@ -18,6 +18,20 @@ const generatePayslip = async (req, res) => {
       return res.status(403).json({ message: "Unauthorized. Inactive user." });
     }
 
+    const currentDate = new Date();
+    const requestedDate = new Date(year, month - 1);
+
+    // Check if requested date is in the future
+    if (requestedDate > currentDate) {
+      return res.status(400).json({ message: "Cannot generate payslip for a future month" });
+    }
+
+    // Check if requested date is before the user's joining date
+    const joiningDate = new Date(user.joiningDate);
+    if (requestedDate < new Date(joiningDate.getFullYear(), joiningDate.getMonth())) {
+      return res.status(400).json({ message: "Cannot generate payslip before the joining date" });
+    }
+
     const existingPayslip = await Payslip.findOne({ userId, month, year });
     if (existingPayslip) {
       return res.status(400).json({
