@@ -8,6 +8,17 @@ const punchIn = async (req, res) => {
   const { current_time, current_date } = getCurrentTimeAndDate();
 
   try {
+    // Check if the user is on leave
+    const leaveRecord = await LeaveModel.findOne({
+      user: user._id,
+      start_date: { $lte: current_date },
+      end_date: { $gte: current_date },
+    });
+
+    if (leaveRecord) {
+      return res.status(400).json({ message: "You cannot punch in while on leave" });
+    }
+
     let attendanceRecord = await AttendanceModel.findOne({
       user: user._id,
       date: current_date,
@@ -15,15 +26,12 @@ const punchIn = async (req, res) => {
     let punchTimes = attendanceRecord ? attendanceRecord.punch_times : [];
 
     if (punchTimes.length % 2 !== 0) {
-      return res
-        .status(400)
-        .json({ message: "You must punch out before punching in again" });
+      return res.status(400).json({ message: "You must punch out before punching in again" });
     }
 
     if (punchTimes.length >= 24) {
       return res.status(400).json({
-        message:
-          "Limit Exceeded. You have already punched in and out 12 times today",
+        message: "Limit Exceeded. You have already punched in and out 12 times today",
       });
     }
 
@@ -42,9 +50,9 @@ const punchIn = async (req, res) => {
 
     return res.status(201).json({
       message: "Punch-in recorded successfully",
-      initialPuchedInAt: attendanceRecord.first_punch_in,
+      initialPunchedInAt: attendanceRecord.first_punch_in,
       punch_in_time: formatTime(current_time),
-      totalPunchTIme: attendanceRecord.total_punch_time,
+      totalPunchTime: attendanceRecord.total_punch_time,
       date: current_date,
     });
   } catch (error) {
@@ -52,6 +60,7 @@ const punchIn = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 
 const punchOut = async (req, res) => {
   const user = req.user;
