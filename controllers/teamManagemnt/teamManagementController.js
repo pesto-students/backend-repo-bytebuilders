@@ -54,7 +54,7 @@ const addMembersToTeam = async (req, res) => {
       return res.status(403).json({ message: "Unauthorized. Inactive user." });
     }
 
-    if (!user.isAdmin && !user.isReportingManager) {
+    if (!user.isAdmin) {
       return res.status(403).json({ message: "Unauthorized" });
     }
 
@@ -103,7 +103,7 @@ const removeMembersFromTeam = async (req, res) => {
       return res.status(403).json({ message: "Unauthorized. Inactive user." });
     }
 
-    if (!user.isAdmin && !user.isReportingManager) {
+    if (!user.isAdmin) {
       return res.status(403).json({ message: "Unauthorized" });
     }
 
@@ -141,7 +141,7 @@ const updateTeamName = async (req, res) => {
       return res.status(403).json({ message: "Unauthorized. Inactive user." });
     }
 
-    if (!user.isAdmin && !user.isReportingManager) {
+    if (!user.isAdmin) {
       return res.status(403).json({ message: "Unauthorized" });
     }
 
@@ -165,7 +165,7 @@ const deleteTeam = async (req, res) => {
       return res.status(403).json({ message: "Unauthorized. Inactive user." });
     }
 
-    if (!user.isAdmin && !user.isReportingManager) {
+    if (!user.isAdmin) {
       return res.status(403).json({ message: "Unauthorized" });
     }
 
