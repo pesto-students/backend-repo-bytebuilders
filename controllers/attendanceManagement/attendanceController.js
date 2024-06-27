@@ -8,7 +8,7 @@ const punchIn = async (req, res) => {
   const { current_time, current_date } = getCurrentTimeAndDate();
 
   try {
-    // Check if the user is on leave
+    
     const leaveRecord = await LeaveModel.findOne({
       user: user._id,
       start_date: { $lte: current_date },
@@ -61,7 +61,6 @@ const punchIn = async (req, res) => {
   }
 };
 
-
 const punchOut = async (req, res) => {
   const user = req.user;
   const { current_time, current_date } = getCurrentTimeAndDate();
@@ -95,6 +94,12 @@ const punchOut = async (req, res) => {
       for (let i = 0; i < punchTimes.length; i += 2) {
         const punchInTime = parseTime(punchTimes[i]);
         const punchOutTime = parseTime(punchTimes[i + 1]);
+
+        // Handle punch out after 12 AM
+        if (punchOutTime < punchInTime) {
+          punchTimes[i + 1] = "23:59:59"; // Set punch out time to 11:59:59 PM
+        }
+
         const punchDuration = punchOutTime - punchInTime;
         totalPunchTime += punchDuration;
       }
@@ -197,7 +202,7 @@ const getPunchData = async (req, res) => {
     // Move to the next day
     currentDate.setDate(currentDate.getDate() + 1);
   }
-  console.log(punchDataList)
+
   return res.status(200).json(punchDataList.reverse());
 };
 
@@ -224,7 +229,13 @@ const parseTime = (timeString) => {
 const formatNetHour = (totalPunchTimeInSeconds) => {
   const hours = Math.floor(totalPunchTimeInSeconds / 3600);
   const minutes = Math.floor((totalPunchTimeInSeconds % 3600) / 60);
-  return `${hours}:${minutes}`;
+  const seconds = totalPunchTimeInSeconds % 60;
+  
+  // Formatting to ensure two digits for minutes and seconds
+  const formattedMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`;
+  const formattedSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`;
+
+  return `${hours}:${formattedMinutes}:${formattedSeconds}`;
 };
 
 module.exports = {
