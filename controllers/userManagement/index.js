@@ -14,6 +14,14 @@ const secretKey = process.env.SECRET_KEY;
 
 const registerUser = async (req, res) => {
   try {
+    // Check if the email already exists
+    const emailExists = await UserModel.exists({ email: req.body.email });
+    if (emailExists) {
+      return res.status(400).json({
+        message: "Email already exists, please use a different email",
+      });
+    }
+
     // Generate unique organization ID from organization name
     const organisationName = req.body.organisationName;
     let generatedOrgId = generateOrganisationUniqueId(organisationName);
@@ -244,4 +252,3 @@ module.exports = {
   sendOTPForForgetPassword,
   confirmOTP,
 };
-
