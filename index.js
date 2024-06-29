@@ -17,7 +17,7 @@ const sslOptions = {
 };
 
 // CORS configuration
-const allowedOrigins = ["https://master--jocular-fairy-66a01a.netlify.app"];
+const allowedOrigins = ["https://master--jocular-fairy-66a01a.netlify.app","https://jocular-fairy-66a01a.netlify.app"];
 app.use(
   cors({
     origin: function (origin, callback) {
