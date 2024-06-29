@@ -46,7 +46,7 @@ const addHoliday = async (req, res) => {
           date,
           name,
           addedBy: user._id,
-          organisation: organisationName,
+          organisation: user.organisationName,
         });
 
         await holiday.save();
