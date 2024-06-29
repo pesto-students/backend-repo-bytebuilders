@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payslip</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 80%;
+            margin: 50px auto;
+            padding: 30px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 15px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            color: #333;
+        }
+        td {
+            color: #666;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #888;
+        }
+        .footer img {
+            max-width: 150px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Payslip</h1>
+        <table>
+            <tr>
+                <th>Employee Name:</th>
+                <td>{{employeeName}}</td>
+            </tr>
+            <tr>
+                <th>Joining Date:</th>
+                <td>{{joiningDate}}</td>
+            </tr>
+            <tr>
+                <th>Employee ID:</th>
+                <td>{{employeeId}}</td>
+            </tr>
+            <tr>
+                <th>Designation:</th>
+                <td>{{designation}}</td>
+            </tr>
+            <!-- <tr>
+                <th>Date of Payslip Generation:</th>
+                <td>{{dateOfPayslipGeneration}}</td>
+            </tr> -->
+            <tr>
+                <th>Basic Salary:</th>
+                <td>{{basicSalary}}</td>
+            </tr>
+            <tr>
+                <th>HRA:</th>
+                <td>{{hra}}</td>
+            </tr>
+            <tr>
+                <th>PF:</th>
+                <td>{{pf}}</td>
+            </tr>
+            <tr>
+                <th>Special Allowance:</th>
+                <td>{{specialAllowances}}</td>
+            </tr>
+            <tr>
+                <th>Total Salary:</th>
+                <td>{{totalSalary}}</td>
+            </tr>
+        </table>
+        <p style="margin-top: 30px; text-align: center;">This is a computer-generated payslip and it does not require a signature.</p>
+        <div class="footer">
+            <!-- Add your company logo here -->
+            <!-- <img src="company_logo.png" alt="Company Logo"> -->
+             </div>
+        
+    </div>
+</body>
+</html>
